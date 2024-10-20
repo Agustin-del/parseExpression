@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript String Parsing</title>
+</head>
+<body>
+
+    <h1>Parsing JavaScript Expressions</h1>
+    <p id="output"></p>
+
+    <!-- Incluir Esprima desde un CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/esprima@4.0.1/dist/esprima.min.js"></script>
+
+    <script>
+        
+        // String con código JavaScript
+        const expression = `
+            (3===3 && x >= 5) && x>= 5
+        `; // => [OR,[],[]]
+
+        // Usar Esprima para obtener el AST
+        const ast = esprima.parseScript(expression);
+
+        // Mostrar el AST en la consola
+        console.log(ast);
+
+ // Función recursiva para recorrer el AST
+        function traverseAST(node, indent = '') {
+            // Mostrar el tipo de nodo y detalles básicos
+            let output = `${indent}${node.type}`;
+            if (node.type === 'Literal') {
+                output += `: ${node.value}`;
+            }
+            if (node.type === 'Identifier') {
+                output += `: ${node.name}`;
+            }
+            console.log(output);
+
+            // Buscar hijos del nodo actual y recorrerlos recursivamente
+            for (const key in node) {
+                if (node.hasOwnProperty(key)) {
+                    const child = node[key];
+
+                    // Si el valor es un nodo (objeto con type), lo recorremos
+                    if (typeof child === 'object' && child !== null && child.type) {
+                        traverseAST(child, indent + '  ');  // Aumentamos la indentación
+                    }
+                    // Si es un array de nodos (como un bloque de declaraciones), los recorremos
+                    if (Array.isArray(child)) {
+                        child.forEach(subNode => {
+                            if (typeof subNode === 'object' && subNode !== null && subNode.type) {
+                                traverseAST(subNode, indent + '  ');
+                            }
+                        });
+                    }
+                }
+            }
+        }
+
+        function parseExpressions(node) {
+            let result = [];
+            
+            if (node.type === 'LogicalExpression') {
+                
+                if (node.operator === '&&') {
+                    result.push('AND');
+                } else if (node.operator === '||') {
+                    result.push('OR');
+                }            
+
+                result.push(parseExpressions(node.left));
+                result.push(parseExpressions(node.right));
+
+            } else if(node.type === 'BinaryExpression') {
+            
+                let left = node.left.type === 'Identifier' ? node.left.name : node.left.value;
+                let right = node.right.type === 'Identifier' ? node.right.name : node.right.value;
+                result.push([left, node.operator, right])
+
+            }
+
+            return result;
+        }
+
+        // Llamamos a la función para recorrer el AST
+        traverseAST(ast);
+        console.log(parseExpressions(ast.body[0].expression));
+        // parseExpression()
+        // Mostrar el resultado en el DOM
+        document.getElementById('output').textContent = JSON.stringify(ast, null, 2);
+    </script>
+
+</body>
+</html>
+
