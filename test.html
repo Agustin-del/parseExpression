@@ -17,8 +17,7 @@
         
         // String con código JavaScript
         const expression = `
-            (3===3 && x >= 5) && x>= 5
-        `; // => [OR,[],[]]
+        juan        `; // => [OR,[],[]]
 
         // Usar Esprima para obtener el AST
         const ast = esprima.parseScript(expression);
@@ -65,20 +64,34 @@
             if (node.type === 'LogicalExpression') {
                 
                 if (node.operator === '&&') {
+        
                     result.push('AND');
+        
                 } else if (node.operator === '||') {
+        
                     result.push('OR');
+        
                 }            
 
                 result.push(parseExpressions(node.left));
                 result.push(parseExpressions(node.right));
 
             } else if(node.type === 'BinaryExpression') {
-            
+        
                 let left = node.left.type === 'Identifier' ? node.left.name : node.left.value;
                 let right = node.right.type === 'Identifier' ? node.right.name : node.right.value;
                 result.push([left, node.operator, right])
 
+            } else if(node.type === 'UnaryExpression') {
+                let left = node.argument.type === 'Identifier' ? node.argument.name : node.argument.value;
+                let right;
+                if(node.operator === '!') {
+                    right = 0;
+                }
+                result.push([left, '==', right])
+            } else {
+                let left = node.type === 'Identifier' ? node.name : node.value;
+                result.push([left, '==', 1]);
             }
 
             return result;
