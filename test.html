@@ -17,13 +17,13 @@
         
         // String con código JavaScript
         const expression = `
-        col == 5 jasd aj|| !col      `; // => [OR,[],[]]
+        col == 5 || !col`; // => [OR,[],[]]
 
         // Usar Esprima para obtener el AST
-        const ast = esprima.parseScript(expression);
+        // const ast = esprima.parseScript(expression);
 
         // Mostrar el AST en la consola
-        console.log(ast);
+        // console.log(ast);
 
  // Función recursiva para recorrer el AST
         function traverseAST(node, indent = '') {
@@ -70,7 +70,7 @@
                 } else if (node.operator === '||') {
         
                     result.push('OR');
-        
+    
                 }            
 
                 result.push(parseExpressions(node.left));
@@ -97,17 +97,27 @@
             return result;
         }
 
-        // Llamamos a la función para recorrer el AST
-        traverseAST(ast);
-        console.log(parseExpressions(ast.body[0].expression));
+        function parseBoolExpressions(expression){
+            try {
+                const ast = esprima.parse(expression);
+                traverseAST(ast);
+                console.log(parseExpressions(ast.body[0].expression));
+                document.getElementById('output').textContent = JSON.stringify(ast, null, 2);
+            } catch (e) {
+                console.error([]);
+            }
+        }
 
-        console.log(parseBoolExpressions(`col == 5 jasd aj|| !col      `)) // err => [] y englobar
+        // Llamamos a la función para recorrer el AST
+        // traverseAST(ast);
+        // console.log(parseExpressions(ast.body[0].expression));
+
+        console.log(parseBoolExpressions(`col == 5 || !col`)) // err => [] y englobar
 
         // parseExpression()
         // Mostrar el resultado en el DOM
-        document.getElementById('output').textContent = JSON.stringify(ast, null, 2);
+
     </script>
 
 </body>
 </html>
-
