@@ -98,21 +98,24 @@
         }
 
         function parseBoolExpressions(expression){
+            let arrBool = [];
             try {
                 const ast = esprima.parse(expression);
                 traverseAST(ast);
-                console.log(parseExpressions(ast.body[0].expression));
-                document.getElementById('output').textContent = JSON.stringify(ast, null, 2);
+                //console.log(parseExpressions(ast.body[0].expression));
+                arrBool = parseExpressions(ast.body[0].expression);
+                //document.getElementById('output').textContent = JSON.stringify(ast, null, 2);
             } catch (e) {
-                console.error([]);
+                console.error(e);
             }
+            return arrBool;
         }
 
         // Llamamos a la función para recorrer el AST
         // traverseAST(ast);
         // console.log(parseExpressions(ast.body[0].expression));
 
-        console.log(parseBoolExpressions(`col == 5 || !col`)) // err => [] y englobar
+        console.log(parseBoolExpressions(`col==5 || !colB && colC=="algo"`)) // err => [] y englobar
 
         // parseExpression()
         // Mostrar el resultado en el DOM
